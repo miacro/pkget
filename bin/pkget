@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+import subprocess
+import os
+import sys
+import yaml
+import json
+from pkget import Package
+
+pkg = Package("./recipes/etcd.yaml", type="yaml")
+
+print(pkg.get_url())
