@@ -64,6 +64,8 @@ class Config():
             setattr(self, name, config[name])
 
     def abspath(self, path):
+        if not path:
+            return ""
         return os.path.abspath(
             os.path.expandvars(os.path.expanduser(path)))
 
@@ -76,9 +78,7 @@ class Config():
         self.override_value("uninstall", config, ignore_empty=False)
         self.merge_value("configfiles", config)
 
-        print(self.installprefix)
         self.installprefix = self.abspath(self.installprefix)
-        print(self.installprefix)
         self.pkginfoprefix = self.abspath(self.pkginfoprefix)
         for i in range(len(self.recipepaths)):
             self.recipepaths[i] = self.abspath(self.recipepaths[i])
