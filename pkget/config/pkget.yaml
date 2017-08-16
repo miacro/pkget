@@ -1,0 +1,6 @@
+---
+config:
+  recipepaths: 
+    -
+  installprefix: ~/.local
+  pkginfoprefix: ~/.local/pkgetinfo
