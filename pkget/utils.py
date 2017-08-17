@@ -34,24 +34,18 @@ def update_value(target, name, value, merge_value=True,
     if isinstance(target, list):
         return _set_value(target, name, value)
 
-    def _get_subobject(target, name):
-        if isinstance(target, dict):
-            return target[name]
-        else:
-            return getattr(target, name)
+    sub_target = None
+    if isinstance(target, dict):
+        sub_target = target[name]
+    else:
+        sub_target = getattr(target, name)
 
-    if isinstance(_get_subobject(target, name), list):
-        if not isinstance(value, list):
-            raise PkgetError("value of %s is not list" % name,
-                             "value")
+    if isinstance(sub_target, list) and isinstance(value, list):
         for i in range(len(value)):
-            _set_value(_get_subobject(target, name), i, value[i])
-    elif isinstance(_get_subobject(target, name), dict):
-        if not isinstance(value, dict):
-            raise PkgetError("value of %s is not dict" % name,
-                             "value")
+            _set_value(sub_target, i, value[i])
+    elif isinstance(sub_target, dict) and isinstance(value, dict):
         for i in value:
-            _set_value(_get_subobject(target, name), i, value[i])
+            _set_value(sub_target, i, value[i])
     else:
         _set_value(target, name, value)
     return value

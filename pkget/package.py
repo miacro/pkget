@@ -18,17 +18,38 @@ class Package():
         if type == "yaml":
             self.init_from_yaml(configfile)
 
+    def __str__(self):
+        return str({"description": self.description,
+                    "website": self.website,
+                    "type": self.type,
+                    "name": self.name,
+                    "version": self.version,
+                    "os": self.os,
+                    "arch": self.arch,
+                    "url": self.url,
+                    "urlprefix": self.urlprefix,
+                    "depends": self.depends})
+
+    def update_value(self, name, config, *args, **kwargs):
+        if not (name in config):
+            return
+        if isinstance(getattr(self, name), list):
+            setattr(self, name, [])
+        elif isinstance(getattr(self, name), dict):
+            setattr(self, name, {})
+        update_value(self, name, config[name], *args, **kwargs)
+
     def update_config(self, config):
-        update_value(self, "description", config["description"])
-        update_value(self, "type", config["type"])
-        update_value(self, "name", config["name"])
-        update_value(self, "version", config["version"])
-        update_value(self, "os", config["os"])
-        update_value(self, "arch", config["arch"])
-        update_value(self, "url", config["url"])
-        update_value(self, "urlprefix", config["urlprefix"])
-        update_value(self, "website", config["website"])
-        update_value(self, "depends", config["depends"], merge_value=False)
+        self.update_value("description", config)
+        self.update_value("type", config)
+        self.update_value("name", config)
+        self.update_value("version", config)
+        self.update_value("os", config)
+        self.update_value("arch", config)
+        self.update_value("url", config)
+        self.update_value("urlprefix", config)
+        self.update_value("website", config)
+        self.update_value("depends", config, merge_value=True)
 
     def init_from_yaml(self, filename):
         with open(filename, "r") as stream:
