@@ -12,6 +12,7 @@ class Package():
         self.arch = "amd64"
         self.url = ""
         self.urlprefix = ""
+        self.depends = []
         if type == "yaml":
             self.init_from_yaml(configfile)
 

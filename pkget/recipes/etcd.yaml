@@ -9,3 +9,4 @@ package:
   arch: amd64
   url:
   urlprefix: https://github.com/coreos/etcd/releases/download
+  depends:

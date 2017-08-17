@@ -1,6 +1,9 @@
 import argparse
 import os
 from pkget import PkgetError
+from .utils import update_value
+
+
 class Config():
     def __init__(self):
         self.recipepaths = []
@@ -27,41 +30,25 @@ class Config():
     def parseArguments(self, args):
         pass
 
-    def merge_value(self, name, config, ignore_empty=True):
-        if not (name in config):
-            return
-        if not config[name]:
-            return
-
-        if isinstance(getattr(self, name), list):
-            if not isinstance(config[name], list):
-                raise PkgetError("value of %s is not list" % name,
-                                 "config")
-            for i in config[name]:
-                if (not ignore_empty) or i:
-                    getattr(self, name).append(i)
-
-        elif isinstance(getattr(self, name), dict):
-            if not isinstance(config[name], dict):
-                raise PkgetError("value of %s is not dict" % name,
-                                 "config")
-            for i in config[name]:
-                if (not ignore_empty) or config[name][i]:
-                    getattr(self, name)[i] = config[name][i]
+    def update_value(self, name, config, merge_value=True,
+                     ignore_empty=True, ignore_false=True,
+                     ignore_none=True):
+        if isinstance(config, list):
+            raise PkgetError("config is not list", "config")
+        kwargs = {"ignore_empty": ignore_empty,
+                  "ignore_false": ignore_false,
+                  "ignore_none": ignore_none,
+                  "merge_value": merge_value}
+        value = None
+        if isinstance(config, dict):
+            if not (name in config):
+                return
+            value = config[name]
         else:
-            raise PkgetError(
-                "value of %s is not list or dict" % name,
-                "config")
-
-    def override_value(self, name, config, ignore_empty=True):
-        if not (name in config):
-            return
-
-        if config[name] is None:
-            return
-
-        if (not ignore_empty) or config[name]:
-            setattr(self, name, config[name])
+            if not hasattr(config, name):
+                return
+            value = getattr(config, name)
+        return update_value(self, name, value, **kwargs)
 
     def abspath(self, path):
         if not path:
@@ -70,13 +57,16 @@ class Config():
             os.path.expandvars(os.path.expanduser(path)))
 
     def update_config(self, config):
-        self.merge_value("recipepaths", config)
-        self.override_value("installprefix", config)
-        self.override_value("pkginfoprefix", config)
-        self.override_value("globally", config, ignore_empty=False)
-        self.override_value("install", config, ignore_empty=False)
-        self.override_value("uninstall", config, ignore_empty=False)
-        self.merge_value("configfiles", config)
+        self.update_value("recipepaths", config)
+        self.update_value("installprefix", config, merge_value=False)
+        self.update_value("pkginfoprefix", config, merge_value=False)
+        self.update_value("globally", config, ignore_empty=False,
+                          ignore_false=False)
+        self.update_value("install", config, ignore_empty=False,
+                          ignore_false=False)
+        self.update_value("uninstall", config, ignore_empty=False,
+                          ignore_false=False)
+        self.update_value("configfiles", config)
 
         self.installprefix = self.abspath(self.installprefix)
         self.pkginfoprefix = self.abspath(self.pkginfoprefix)

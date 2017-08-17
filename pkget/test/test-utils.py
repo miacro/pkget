@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+from pkget.utils import update_value
+
+
+class Config():
+    def __init__(self):
+        self.installprefix = ""
+
+    def __str__(self):
+        return str({"installprefix": self.installprefix})
+
+
+def test_update_value(target, name):
+    print("====test update_value")
+    print("==test ignore_none")
+    update_value(target, name, "~/.local", merge_value=False)
+    print(target)
+    update_value(target, name, None, merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=True)
+    print(target)
+    update_value(target, name, None, merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=False)
+    print(target)
+
+    print("==test ignore_false")
+    update_value(target, name, "~/.local", merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=True)
+    print(target)
+    update_value(target, name, False, merge_value=False,
+                 ignore_empty=False, ignore_false=True, ignore_none=True)
+    print(target)
+    update_value(target, name, False, merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=True)
+    print(target)
+
+    print("==test ignore_empty")
+    update_value(target, name, "~/.local", merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=True)
+    print(target)
+    update_value(target, name, "", merge_value=False,
+                 ignore_empty=True, ignore_false=False, ignore_none=True)
+    print(target)
+    update_value(target, name, "", merge_value=False,
+                 ignore_empty=False, ignore_false=False, ignore_none=True)
+    print(target)
+
+    print("\n====test_merge_value")
+    print("==test merge dict")
+    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    print(target)
+    update_value(target, name, {"a": 1, "b": 2}, merge_value=False)
+    print(target)
+    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    print(target)
+    update_value(target, name, {"a": 1, "b": 2}, merge_value=True)
+    print(target)
+    update_value(target, name, {"a": 3, "c": 3}, merge_value=True)
+    print(target)
+    update_value(target, name, {"a": 4, "d": 5}, merge_value=False)
+    print(target)
+
+    print("==test merge list")
+    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    print(target)
+    update_value(target, name, [1, 3, 4], merge_value=False)
+    print(target)
+    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    print(target)
+    update_value(target, name, [1, 3, 4], merge_value=True)
+    print(target)
+    update_value(target, name, [2, 3, 4], merge_value=True)
+    print(target)
+    update_value(target, name, [3, 4, 5], merge_value=False)
+    print(target)
+
+
+print("\n\n======test object")
+config = Config()
+test_update_value(config, "installprefix")
+
+print("\n\n======test dict")
+config = {"installprefix": ""}
+test_update_value(config, "installprefix")
+
+print("\n\n======test list")
+config = [""]
+test_update_value(config, "installprefix")
