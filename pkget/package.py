@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import yaml
+from pkget.utils import update_value
+
 
 class Package():
     def __init__(self, configfile="", type=""):
@@ -16,26 +18,23 @@ class Package():
         if type == "yaml":
             self.init_from_yaml(configfile)
 
-    def _override_config(self, config):
-        def _override_value(name):
-            if name in config and config[name]:
-                setattr(self, name, config[name])
-
-        _override_value("description")
-        _override_value("type")
-        _override_value("name")
-        _override_value("version")
-        _override_value("os")
-        _override_value("arch")
-        _override_value("url")
-        _override_value("urlprefix")
-        _override_value("website")
+    def update_config(self, config):
+        update_value(self, "description", config["description"])
+        update_value(self, "type", config["type"])
+        update_value(self, "name", config["name"])
+        update_value(self, "version", config["version"])
+        update_value(self, "os", config["os"])
+        update_value(self, "arch", config["arch"])
+        update_value(self, "url", config["url"])
+        update_value(self, "urlprefix", config["urlprefix"])
+        update_value(self, "website", config["website"])
+        update_value(self, "depends", config["depends"], merge_value=False)
 
     def init_from_yaml(self, filename):
         with open(filename, "r") as stream:
             try:
                 pkg = yaml.load(stream)
-                self._override_config(pkg["package"])
+                self.update_config(pkg["package"])
             except yaml.YAMLError as ex:
                 raise ex
 
