@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-from pkget import Config
+from pkget import GlobalConfig
 
-config = Config()
+config = GlobalConfig()
+print("default")
+print(config)
 config.update_config({
     "installprefix": "~/.local",
     "pkginfoprefix": "~",
@@ -10,9 +12,5 @@ config.update_config({
 print(config)
 config.update_config({
     "installprefix": None,
-    "globally": True,
-    "install": False,
-    "uninstall": True,
-    "configfiles": ["~/.local", "~", None, ""]
 })
 print(config)

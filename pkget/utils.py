@@ -1,14 +1,14 @@
-from pkget import PkgetError
+import os
 
 
 def set_value(target, name, value,
-              ignore_empty=True, ignore_false=True,
+              ignore_not_true=True, ignore_false=True,
               ignore_none=True):
+    if ignore_not_true and (not value):
+        return value
     if ignore_none and value is None:
         return value
-    if ignore_false and value is False:
-        return value
-    if ignore_empty and (not value):
+    elif ignore_false and value is False:
         return value
 
     if isinstance(target, list):
@@ -21,12 +21,9 @@ def set_value(target, name, value,
 
 
 def update_value(target, name, value, merge_value=True,
-                 ignore_empty=True, ignore_false=True,
-                 ignore_none=True):
+                 *args, **kwargs):
     def _set_value(target, name, value):
-        return set_value(
-            target, name, value, ignore_empty=ignore_empty,
-            ignore_false=ignore_false, ignore_none=ignore_none)
+        return set_value(target, name, value, *args, **kwargs)
 
     if not merge_value:
         return _set_value(target, name, value)
@@ -49,3 +46,10 @@ def update_value(target, name, value, merge_value=True,
     else:
         _set_value(target, name, value)
     return value
+
+
+def abspath(path):
+    if not path:
+        return ""
+    return os.path.abspath(
+        os.path.expandvars(os.path.expanduser(path)))

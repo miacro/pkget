@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from pkget.utils import update_value
+from
 
 
 class Config():
@@ -16,41 +17,41 @@ def test_update_value(target, name):
     update_value(target, name, "~/.local", merge_value=False)
     print(target)
     update_value(target, name, None, merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=True)
+                 ignore_not_true=False, ignore_false=False, ignore_none=True)
     print(target)
     update_value(target, name, None, merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=False)
+                 ignore_not_true=False, ignore_false=False, ignore_none=False)
     print(target)
 
     print("==test ignore_false")
     update_value(target, name, "~/.local", merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=True)
+                 ignore_not_true=False, ignore_false=False, ignore_none=True)
     print(target)
     update_value(target, name, False, merge_value=False,
-                 ignore_empty=False, ignore_false=True, ignore_none=True)
+                 ignore_not_true=False, ignore_false=True, ignore_none=True)
     print(target)
     update_value(target, name, False, merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=True)
+                 ignore_not_true=False, ignore_false=False, ignore_none=True)
     print(target)
 
-    print("==test ignore_empty")
+    print("==test ignore_not_true")
     update_value(target, name, "~/.local", merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=True)
+                 ignore_not_true=False, ignore_false=False, ignore_none=True)
     print(target)
     update_value(target, name, "", merge_value=False,
-                 ignore_empty=True, ignore_false=False, ignore_none=True)
+                 ignore_not_true=True, ignore_false=False, ignore_none=True)
     print(target)
     update_value(target, name, "", merge_value=False,
-                 ignore_empty=False, ignore_false=False, ignore_none=True)
+                 ignore_not_true=False, ignore_false=False, ignore_none=True)
     print(target)
 
     print("\n====test_merge_value")
     print("==test merge dict")
-    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    update_value(target, name, "", ignore_not_true=False, merge_value=False)
     print(target)
     update_value(target, name, {"a": 1, "b": 2}, merge_value=False)
     print(target)
-    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    update_value(target, name, "", ignore_not_true=False, merge_value=False)
     print(target)
     update_value(target, name, {"a": 1, "b": 2}, merge_value=True)
     print(target)
@@ -60,11 +61,11 @@ def test_update_value(target, name):
     print(target)
 
     print("==test merge list")
-    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    update_value(target, name, "", ignore_not_true=False, merge_value=False)
     print(target)
     update_value(target, name, [1, 3, 4], merge_value=False)
     print(target)
-    update_value(target, name, "", ignore_empty=False, merge_value=False)
+    update_value(target, name, "", ignore_not_true=False, merge_value=False)
     print(target)
     update_value(target, name, [1, 3, 4], merge_value=True)
     print(target)
