@@ -1,5 +1,5 @@
 from .exception import PkgetError
-from .utils import update_value
+from .utils import Utils
 
 
 class BasicConfig():
@@ -42,7 +42,7 @@ class BasicConfig():
             if not hasattr(config, name):
                 return
             value = getattr(config, name)
-        return update_value(self, name, value, *args, **kwargs)
+        return Utils.update_value(self, name, value, *args, **kwargs)
 
     def update_config(self, config, override=False):
         for attr_name, attr_value in self:

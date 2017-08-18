@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from .utils import update_value
 from .basic_config import BasicConfig
 
 
