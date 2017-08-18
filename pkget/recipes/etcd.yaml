@@ -1,9 +1,8 @@
 ---
-package:
+etcd:
   description: Highly-available key value store for shared configuration and service discovery
   website: https://github.com/coreos/etcd
   type: tar.gz
-  name: etcd
   version: 3.2.5
   os: linux
   arch: amd64

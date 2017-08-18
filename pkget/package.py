@@ -4,7 +4,7 @@ from pkget.utils import update_value
 
 
 class Package():
-    def __init__(self, configfile="", type=""):
+    def __init__(self, configfile="", configtype=""):
         self.description = ""
         self.website = ""
         self.type = ""
@@ -15,8 +15,16 @@ class Package():
         self.url = ""
         self.urlprefix = ""
         self.depends = []
-        if type == "yaml":
-            self.init_from_yaml(configfile)
+        if configtype == "yaml":
+            self.update_from_yaml(configfile)
+
+    def update_from_yaml(self, filename):
+        with open(filename, "r") as stream:
+            try:
+                pkg = yaml.load(stream)
+                self.update_config(pkg["package"])
+            except yaml.YAMLError as ex:
+                raise ex
 
     def __str__(self):
         return str({"description": self.description,
@@ -50,14 +58,6 @@ class Package():
         self.update_value("urlprefix", config)
         self.update_value("website", config)
         self.update_value("depends", config, merge_value=True)
-
-    def init_from_yaml(self, filename):
-        with open(filename, "r") as stream:
-            try:
-                pkg = yaml.load(stream)
-                self.update_config(pkg["package"])
-            except yaml.YAMLError as ex:
-                raise ex
 
     def get_url(self):
         if self.url:
