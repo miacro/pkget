@@ -4,27 +4,31 @@ from .utils import update_value
 
 class BasicConfig():
     def __init__(self, attributes):
-        self.attributes = {}
+        self.__attributes = {}
         if isinstance(attributes, dict):
             for i in attributes:
                 if isinstance(attributes[i], dict):
-                    self.attributes[i] = attributes[i]
+                    self.__attributes[i] = attributes[i]
                 else:
-                    self.attributes[i] = {"default": attributes[i]}
+                    self.__attributes[i] = {"default": attributes[i]}
         elif isinstance(attributes, list):
             for i in attributes:
-                self.attributes[i] = {}
+                self.__attributes[i] = {}
 
-        for i in self.attributes:
-            if not ("default" in self.attributes[i]):
-                self.attributes[i]["default"] = ""
-            setattr(self, i, self.attributes[i]["default"])
+        for i in self.__attributes:
+            if not ("default" in self.__attributes[i]):
+                self.__attributes[i]["default"] = ""
+            setattr(self, i, self.__attributes[i]["default"])
+
+    def __iter__(self):
+        for i in self.__attributes:
+            yield i, getattr(self, i)
 
     def __str__(self):
-        print_dict = {}
-        for i in self.attributes:
-            print_dict[i] = getattr(self, i)
-        return str(print_dict)
+        attr_dict = {}
+        for name, value in self:
+            attr_dict[name] = value
+        return str(attr_dict)
 
     def update_value(self, name, config, *args, **kwargs):
         if isinstance(config, list):
@@ -41,16 +45,15 @@ class BasicConfig():
         return update_value(self, name, value, *args, **kwargs)
 
     def update_config(self, config, override=False):
-        for i in self.attributes:
-            attr = getattr(self, i)
+        for attr_name, attr_value in self:
             kwargs = {}
-            if isinstance(attr, bool):
+            if isinstance(attr_value, bool):
                 kwargs = {"ignore_not_true": False,
                           "ignore_false": False}
-            elif isinstance(attr, dict):
+            elif isinstance(attr_value, dict):
                 pass
-            elif isinstance(attr, list):
+            elif isinstance(attr_value, list):
                 pass
             else:
                 pass
-            self.update_value(i, config, **kwargs)
+            self.update_value(attr_name, config, **kwargs)

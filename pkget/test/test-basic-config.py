@@ -25,3 +25,6 @@ config.update_config({
     "configfiles": ["~/.local", "~", None, ""]
 })
 print(config)
+
+for key, value in config:
+    print(key, value)

@@ -4,3 +4,9 @@ default:
     -
   installprefix: ~/.local
   pkginfoprefix: ~/.local/pkgetinfo
+---
+global:
+  recipepaths: 
+    -
+  installprefix: /usr/local/
+  pkginfoprefix: /usr/local/pkgetinfo
