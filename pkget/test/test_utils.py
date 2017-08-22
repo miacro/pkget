@@ -1,6 +1,20 @@
-#!/usr/bin/env python
-import os
+import unittest
 from pkget import Utils
+
+
+class UntilsTest(unittest.TestCase):
+    def test_set_value(self):
+        print("\n\n======test object")
+        config = Config()
+        test_update_value(config, "installprefix")
+
+        print("\n\n======test dict")
+        config = {"installprefix": ""}
+        test_update_value(config, "installprefix")
+
+        print("\n\n======test list")
+        config = [""]
+        test_update_value(config, "installprefix")
 
 
 class Config():
@@ -75,14 +89,3 @@ def test_update_value(target, name):
     print(target)
 
 
-print("\n\n======test object")
-config = Config()
-test_update_value(config, "installprefix")
-
-print("\n\n======test dict")
-config = {"installprefix": ""}
-test_update_value(config, "installprefix")
-
-print("\n\n======test list")
-config = [""]
-test_update_value(config, "installprefix")
