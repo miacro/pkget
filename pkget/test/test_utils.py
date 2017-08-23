@@ -2,90 +2,69 @@ import unittest
 from pkget import Utils
 
 
-class UntilsTest(unittest.TestCase):
+class UtilsTest(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
     def test_set_value(self):
-        print("\n\n======test object")
-        config = Config()
-        test_update_value(config, "installprefix")
+        def test_result(target, name, value):
+            message = "target is "
+            if isinstance(target, dict):
+                self.assertIs(target[name], value, message + "dict")
+            elif isinstance(target, list):
+                self.assertIs(target[-1], value, message + "list")
+            else:
+                self.assertIs(
+                    getattr(target, name), value, message + "object")
 
-        print("\n\n======test dict")
-        config = {"installprefix": ""}
-        test_update_value(config, "installprefix")
+        def test_set_value_when_target(target):
+            Utils.set_value(target, "a", "1")
+            test_result(target, "a", "1")
+            Utils.set_value(target, "b", 2)
+            test_result(target, "b", 2)
+            Utils.set_value(target, "a", 1)
+            test_result(target, "a", 1)
 
-        print("\n\n======test list")
-        config = [""]
-        test_update_value(config, "installprefix")
+            Utils.set_value(target, "a", "", ignore_not_true=True)
+            test_result(target, "a", 1)
+            Utils.set_value(target, "a", "", ignore_not_true=False)
+            test_result(target, "a", "")
+            Utils.set_value(target, "a", False, ignore_not_true=False,
+                            ignore_false=True)
+            test_result(target, "a", "")
+            Utils.set_value(target, "a", False, ignore_not_true=False,
+                            ignore_false=False)
+            test_result(target, "a", False)
+            Utils.set_value(target, "a", None, ignore_not_true=False,
+                            ignore_none=True)
+            test_result(target, "a", False)
+            Utils.set_value(target, "a", None, ignore_not_true=False,
+                            ignore_none=False)
+            test_result(target, "a", None)
 
+        target = TestObject()
+        test_set_value_when_target(target)
+        target = {}
+        test_set_value_when_target(target)
+        target = []
+        test_set_value_when_target(target)
 
-class Config():
-    def __init__(self):
-        self.installprefix = ""
+    def test_update_value(self):
+        self.test_set_value()
+        target = {"a": {"a": 1, "b": 2}}
+        Utils.update_value(target, "a", {"c": 3, "a": 3}, merge_value=True)
+        self.assertIs(target["a"]["c"], 3)
+        self.assertIs(target["a"]["a"], 3)
 
-    def __str__(self):
-        return str({"installprefix": self.installprefix})
-
-
-def test_update_value(target, name):
-    print("====test update_value")
-    print("==test ignore_none")
-    Utils.update_value(target, name, "~/.local", merge_value=False)
-    print(target)
-    Utils.update_value(target, name, None, merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=True)
-    print(target)
-    Utils.update_value(target, name, None, merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=False)
-    print(target)
-
-    print("==test ignore_false")
-    Utils.update_value(target, name, "~/.local", merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=True)
-    print(target)
-    Utils.update_value(target, name, False, merge_value=False,
-                 ignore_not_true=False, ignore_false=True, ignore_none=True)
-    print(target)
-    Utils.update_value(target, name, False, merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=True)
-    print(target)
-
-    print("==test ignore_not_true")
-    Utils.update_value(target, name, "~/.local", merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=True)
-    print(target)
-    Utils.update_value(target, name, "", merge_value=False,
-                 ignore_not_true=True, ignore_false=False, ignore_none=True)
-    print(target)
-    Utils.update_value(target, name, "", merge_value=False,
-                 ignore_not_true=False, ignore_false=False, ignore_none=True)
-    print(target)
-
-    print("\n====test_merge_value")
-    print("==test merge dict")
-    Utils.update_value(target, name, "", ignore_not_true=False, merge_value=False)
-    print(target)
-    Utils.update_value(target, name, {"a": 1, "b": 2}, merge_value=False)
-    print(target)
-    Utils.update_value(target, name, "", ignore_not_true=False, merge_value=False)
-    print(target)
-    Utils.update_value(target, name, {"a": 1, "b": 2}, merge_value=True)
-    print(target)
-    Utils.update_value(target, name, {"a": 3, "c": 3}, merge_value=True)
-    print(target)
-    Utils.update_value(target, name, {"a": 4, "d": 5}, merge_value=False)
-    print(target)
-
-    print("==test merge list")
-    Utils.update_value(target, name, "", ignore_not_true=False, merge_value=False)
-    print(target)
-    Utils.update_value(target, name, [1, 3, 4], merge_value=False)
-    print(target)
-    Utils.update_value(target, name, "", ignore_not_true=False, merge_value=False)
-    print(target)
-    Utils.update_value(target, name, [1, 3, 4], merge_value=True)
-    print(target)
-    Utils.update_value(target, name, [2, 3, 4], merge_value=True)
-    print(target)
-    Utils.update_value(target, name, [3, 4, 5], merge_value=False)
-    print(target)
+        target = {"a": [1, 2, 3]}
+        Utils.update_value(target, "a", [4, 5, 6], merge_value=True)
+        self.assertIs(target["a"][3], 4)
+        self.assertIs(target["a"][4], 5)
+        self.assertIs(target["a"][5], 6)
 
 
+class TestObject():
+    pass
