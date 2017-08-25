@@ -1,0 +1,17 @@
+---
+default:
+  recipepaths: 
+    -
+  installprefix: ~/.local
+  pkginfoprefix: ~/.local/pkgetinfo
+local:
+  recipepaths: 
+    - "/usr/local"
+    -
+  installprefix: /usr/local/
+  pkginfoprefix: /usr/local/pkgetinfo
+---
+global:
+  recipepaths: 
+  installprefix: /usr/local/
+  pkginfoprefix: /usr/local/pkgetinfo
