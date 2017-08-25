@@ -3,35 +3,34 @@ from .utils import Utils
 
 
 class BasicConfig():
+    __type = {"int": "int",
+              "float": "float",
+              "string": "string",
+              "dict": "dict",
+              "list": "list"}
+
     def __init__(self, attributes):
         self.__attributes = {}
-        self.__type = {"int": "int",
-                       "float": "float",
-                       "string": "string",
-                       "dict": "dict",
-                       "list": "list"}
         if isinstance(attributes, dict):
             for i in attributes:
                 if isinstance(attributes[i], dict):
                     self.__attributes[i] = attributes[i]
                 else:
-                    self.__attributes[i] = {"default": attributes[i]}
+                    self.__attributes[i] = {"value": attributes[i]}
         elif isinstance(attributes, list):
             for i in attributes:
                 self.__attributes[i] = {}
 
         for i in self.__attributes:
-            if not ("default" in self.__attributes[i]):
-                self.__attributes[i]["default"] = ""
+            if not ("value" in self.__attributes[i]):
+                self.__attributes[i]["value"] = ""
 
             if "type" in self.__attributes[i]:
                 self.__attributes[i]["type"] = self.__detect_attribute_type(
                     type_name=self.__attributes[i]["type"])
             else:
                 self.__attributes[i]["type"] = self.__detect_attribute_type(
-                    attr_value=self.__attributes[i]["default"])
-
-            setattr(self, i, self.__attributes[i]["default"])
+                    attr_value=self.__attributes[i]["value"])
 
     def __iter__(self):
         for i in self.__attributes:
@@ -43,13 +42,23 @@ class BasicConfig():
             attr_dict[name] = value
         return str(attr_dict)
 
-    def __getattr__(self, name):
-        return super().__getattr__(name)
-
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
+    def __getattr__(self, name):
+        if hasattr(self, "__attributes") and \
+                (name in self.__attributes):
+            return self.__attributes[name]["value"]
+        raise PkgetError("attribute %s is not found" % name,
+                         "config")
+
     def __setattr__(self, name, value):
+        attr_type = self.__detect_attribute_type(attr_value=value)
+        if attr_type != self.__attributes[name]["type"]:
+            raise PkgetError(
+                "type of %s is not %s" %
+                (name, self.__attributes[name]["type"]),
+                "config")
         return super().__setattr__(name, value)
 
     def __detect_attribute_type(self, attr_value="", type_name=""):
@@ -69,7 +78,7 @@ class BasicConfig():
 
         if attr_type in self.__type:
             return self.__type[attr_type]
-        raise TypeError("%s type is not allowed" % attr_type)
+        raise PkgetError("%s type is not allowed" % attr_type, "config")
 
     def update_value(self, name, config, *args, **kwargs):
         if isinstance(config, list):
@@ -83,6 +92,7 @@ class BasicConfig():
             if not hasattr(config, name):
                 return
             value = getattr(config, name)
+
         return Utils.update_value(self, name, value, *args, **kwargs)
 
     def update_config(self, config, override=False):
