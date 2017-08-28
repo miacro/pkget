@@ -44,6 +44,9 @@ class UtilsTest(unittest.TestCase):
             Utils.set_value(target, "a", None, ignore_not_true=False,
                             ignore_none=False)
             test_result(target, "a", None)
+            value = ["/usr/local"]
+            Utils.set_value(target, "a", value)
+            test_result(target, "a", value)
 
         target = TestObject()
         test_set_value_when_target(target)

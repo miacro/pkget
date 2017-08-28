@@ -9,6 +9,12 @@ class BasicConfig():
               "dict": "dict",
               "list": "list"}
 
+    def is_reserved_attribute(name):
+        if (name[0:1] == "_") or (name[0:7] == "update_") or \
+                (name == "is_reserved_attribute"):
+            return True
+        return False
+
     def __init__(self, attributes):
         self.__attributes = {}
         if isinstance(attributes, dict):
@@ -23,14 +29,10 @@ class BasicConfig():
 
         for i in self.__attributes:
             if not ("value" in self.__attributes[i]):
-                self.__attributes[i]["value"] = ""
+                self.__attributes[i]["value"] = None
 
-            if "type" in self.__attributes[i]:
-                self.__attributes[i]["type"] = self.__detect_attribute_type(
-                    type_name=self.__attributes[i]["type"])
-            else:
-                self.__attributes[i]["type"] = self.__detect_attribute_type(
-                    attr_value=self.__attributes[i]["value"])
+            self.__attributes[i]["type"] = self.__detect_attribute_type(
+                attr_value=self.__attributes[i]["value"])
 
     def __iter__(self):
         for i in self.__attributes:
@@ -46,26 +48,31 @@ class BasicConfig():
         return super().__getattribute__(name)
 
     def __getattr__(self, name):
-        if hasattr(self, "__attributes") and \
-                (name in self.__attributes):
-            return self.__attributes[name]["value"]
+        if BasicConfig.is_reserved_attribute(name) or \
+                (not (name in self.__attributes)):
+            raise PkgetError("attribute %s is not found" % name,
+                             "config")
+
+        return self.__attributes[name]["value"]
+
+    def __setattr__(self, name, value):
+        if BasicConfig.is_reserved_attribute(name):
+            return super().__setattr__(name, value)
+
+        if name in self.__attributes:
+            if self.__detect_attribute_type(attr_value=value) == \
+                    self.__attributes[name]["type"]:
+                return super().__setattr__(name, value)
+            else:
+                raise PkgetError("type of %s is not %s" %
+                                 (name, self.__attributes[name]["type"]),
+                                 "config")
         raise PkgetError("attribute %s is not found" % name,
                          "config")
 
-    def __setattr__(self, name, value):
-        attr_type = self.__detect_attribute_type(attr_value=value)
-        if attr_type != self.__attributes[name]["type"]:
-            raise PkgetError(
-                "type of %s is not %s" %
-                (name, self.__attributes[name]["type"]),
-                "config")
-        return super().__setattr__(name, value)
-
-    def __detect_attribute_type(self, attr_value="", type_name=""):
+    def __detect_attribute_type(self, attr_value=""):
         attr_type = "unknown"
-        if not attr_type:
-            attr_type = type_name
-        elif isinstance(attr_value, int):
+        if isinstance(attr_value, int):
             attr_type = "int"
         elif isinstance(attr_value, float):
             attr_type = "float"
@@ -73,12 +80,12 @@ class BasicConfig():
             attr_type = "dict"
         elif isinstance(attr_value, list):
             attr_type = "list"
-        elif isinstance(attr_value, str):
+        elif isinstance(attr_value, str) or attr_value is None:
             attr_type = "string"
 
         if attr_type in self.__type:
             return self.__type[attr_type]
-        raise PkgetError("%s type is not allowed" % attr_type, "config")
+        raise PkgetError("%s type of %s is not allowed" % attr_type, "config")
 
     def update_value(self, name, config, *args, **kwargs):
         if isinstance(config, list):
@@ -95,12 +102,12 @@ class BasicConfig():
 
         return Utils.update_value(self, name, value, *args, **kwargs)
 
-    def update_config(self, config, override=False):
+    def update_config(self, config, merge_value=True):
         for attr_name, attr_value in self:
-            kwargs = {}
+            kwargs = {"merge_value": merge_value}
             if isinstance(attr_value, bool):
-                kwargs = {"ignore_not_true": False,
-                          "ignore_false": False}
+                kwargs["ignore_not_true"] = False
+                kwargs["ignore_false"] = False
             elif isinstance(attr_value, dict):
                 pass
             elif isinstance(attr_value, list):
